@@ -2,6 +2,7 @@
 __pycache__/
 *.py[cod]
 *$py.class
+.DS_Store
 
 # C extensions
 *.so
@@ -82,6 +83,9 @@ dmypy.json
 
 # Repomix
 repomix-output.xml
+
+# Local only
+local/
 
 # LLMs
 .windsurf
