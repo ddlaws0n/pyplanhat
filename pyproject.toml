@@ -5,6 +5,8 @@
         "Intended Audience :: Developers",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
+        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
         "Topic :: Software Development :: Libraries :: Python Modules",
@@ -17,7 +19,7 @@
     keywords = ["api", "crm", "planhat", "rest", "sdk", "wrapper"]
     name = "pyplanhat"
     readme = "README.md"
-    requires-python = ">=3.12,<3.14"
+    requires-python = ">=3.10,<3.14"
     version = "0.1.0"
 
     [project.scripts]
@@ -49,10 +51,10 @@
 
 [tool.ruff]
     line-length    = 99
-    select         = ["E", "F", "I", "RUF", "UP"]
     target-version = "py313"
 
     [tool.ruff.lint]
+        select = ["E", "F", "I", "RUF", "UP"]
         ignore = [
             "D10",
             "D203",
@@ -71,7 +73,7 @@
     disallow_untyped_defs  = true
     exclude                = [".venv/", "dist/", "tests/"]
     ignore_missing_imports = true
-    python_version         = "3.12"
+    python_version         = "3.10"
 
 [tool.pytest.ini_options]
     addopts = "-q"
