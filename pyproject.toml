@@ -1,5 +1,5 @@
 [project]
-    authors = [{ name = "David D Lawson", email = "david.lawson@wiz.io" }]
+    authors = [{ name = "David D Lawson", email = "david@lawson.dev" }]
     classifiers = [
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Developers",
