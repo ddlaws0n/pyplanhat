@@ -11,10 +11,10 @@ PyPlanhat SDK is a modern Python SDK for the Planhat API with async-first archit
 ### Setup
 ```bash
 # Install dependencies
-uv sync --all-groups
+uv sync --extra dev --extra test
 
 # Install dependencies without resolving (if lockfile unchanged)
-uv sync --frozen
+uv sync --frozen --extra dev --extra test
 ```
 
 ### Testing

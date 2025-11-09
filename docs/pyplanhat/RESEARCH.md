@@ -98,15 +98,13 @@ description = "A modern, sync/async Python SDK for the Planhat API."
 readme = "README.md"
 authors =
 license = { text = "MIT" } #
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 keywords = ["planhat", "api", "sdk", "wrapper"]
 classifiers =
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.10",
-    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Libraries :: Python Modules"
 ]
@@ -140,7 +138,7 @@ dev = [
 # ===================================================================
 [tool.ruff]
 line-length = 88
-target-version = "py310"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = [
@@ -167,7 +165,7 @@ indent-style = "space"
 skip-magic-trailing-comma = false
 
 [tool.mypy] #
-python_version = "3.10"
+python_version = "3.12"
 warn_return_any = true
 warn_unused_configs = true
 ```
@@ -666,9 +664,9 @@ The following updates refine the original research based on the latest tool vers
 
 ### A.2. Python Version Support
 
-**Status**: RESOLVED - Using Python 3.10+
+**Status**: RESOLVED - Using Python 3.12+
 
-**Decision**: Python 3.10+ is confirmed as the minimum supported version. This aligns with modern best practices and the support policies of httpx and pydantic, while ensuring security and maintainability.
+**Decision**: Python 3.12+ is confirmed as the minimum supported version. This aligns with modern best practices and the support policies of httpx and pydantic, while ensuring security and maintainability.
 
 ### A.3. The unasync Library and Code Generation Strategy
 

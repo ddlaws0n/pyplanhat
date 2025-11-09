@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-- Python 3.10+
+- Python 3.12+
 - uv (Astral package manager)
 - Git with GitHub CLI
 - Make (optional, for convenience scripts)
@@ -304,7 +304,7 @@ echo "✅ Sync code generation validation complete!"
 # pyproject.toml
 [tool.ruff]
 line-length = 88
-target-version = "py310"
+target-version = "py312"
 
 [tool.ruff.lint]
 select = [
@@ -332,7 +332,7 @@ ignore = [
 ```toml
 # pyproject.toml
 [tool.mypy]
-python_version = "3.10"
+python_version = "3.12"
 check_untyped_defs = true
 disallow_any_generics = true
 disallow_incomplete_defs = true
@@ -379,13 +379,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10", "3.11", "3.12"]
+        python-version: ["3.12"]
 
     steps:
-    - uses: actions/checkout@v4
-    
+    - uses: actions/checkout@v5
+
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     
