@@ -1,7 +1,7 @@
 ---
 description: Code quality and scope validation with read-only access
 mode: primary
-model: anthropic/claude-sonnet-4-20250514
+model: anthropic/claude-sonnet-4-5-20250929
 temperature: 0.0
 tools:
   write: false

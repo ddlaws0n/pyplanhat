@@ -1,7 +1,7 @@
 ---
 description: Full development implementation with unrestricted access
 mode: primary
-model: anthropic/claude-sonnet-4-20250514
+model: zai-coding-plan/glm-4.6
 temperature: 0.3
 tools:
   write: true
@@ -46,8 +46,8 @@ python scripts/generate_sync.py     # Generate sync code
 ## Architecture Reminders
 - **Write async first** in `_async/` directory only
 - **Never edit** generated files in `_sync/` directories
-- **Use custom exceptions** from `_exceptions.py` 
+- **Use custom exceptions** from `_exceptions.py`
 - **Follow patterns** documented in AGENTS.md
 
-For detailed architectural rules, exception hierarchy, and project standards, 
+For detailed architectural rules, exception hierarchy, and project standards,
 see AGENTS.md which is loaded in your context.
