@@ -2,7 +2,7 @@
 
 import pytest
 
-from pyplanhat._async.client import PyPlanhat
+from pyplanhat._sync.client import PyPlanhat
 
 
 @pytest.fixture

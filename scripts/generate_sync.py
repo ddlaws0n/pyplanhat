@@ -32,6 +32,7 @@ def main() -> None:
         "__aenter__": "__enter__",
         "__aexit__": "__exit__",
         "aclose": "close",
+        "_async": "_sync",  # Transform import paths
     }
 
     # Create rules for transformations
