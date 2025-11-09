@@ -1,1 +1,1 @@
-"""Async tests for PyPlanhat SDK."""
+"""Tests for PyPlanhat SDK."""

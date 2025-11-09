@@ -1,4 +1,4 @@
-"""Async client for Planhat API."""
+"""Planhat API client."""
 
 import os
 
@@ -6,7 +6,7 @@ import httpx
 
 
 class PyPlanhat:
-    """Async client for Planhat API."""
+    """Planhat API client."""
 
     def __init__(
         self,

@@ -1,1 +1,1 @@
-"""Async resource implementations for Planhat API."""
+"""Resource implementations for Planhat API."""

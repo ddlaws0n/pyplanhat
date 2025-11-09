@@ -1,1 +1,1 @@
-"""Async implementation of PyPlanhat SDK."""
+"""PyPlanhat SDK implementation."""
