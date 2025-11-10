@@ -140,6 +140,22 @@ class ServerError(APIError):
 - **Parse responses with Pydantic models**
 - **Support custom fields** with `Dict[str, Any] = {}` default
 
+### 6. Docstring Guidelines
+**CRITICAL**: Docstrings in async source are copied to sync code during generation.
+
+**DO**:
+- Use generic, implementation-agnostic docstrings
+- Example: "PyPlanhat client" (not "Async PyPlanhat client")
+- Example: "Tests for PyPlanhat SDK" (not "Async tests")
+- Example: "Fixture providing a PyPlanhat client" (not "async client")
+
+**DON'T**:
+- Use "async" or "sync" specifiers in docstrings
+- Reference implementation details that won't translate
+- Write docstrings that only make sense for async or sync variant
+
+**Why**: The `generate_sync.py` script transforms code tokens but preserves string content. Generic docstrings ensure both variants have accurate documentation and avoid false positives in code reviews.
+
 ## Phase-Based Development
 
 ### Phase 0: Foundation (P0-0 to P0-9)

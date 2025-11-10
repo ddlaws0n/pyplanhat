@@ -14,6 +14,19 @@ def collect_python_files(directory: Path) -> list[str]:
     return [str(f) for f in directory.rglob("*.py")]
 
 
+def remove_async_markers(directory: Path) -> None:
+    """Remove @pytest.mark.asyncio decorators from sync test files."""
+    if not directory.exists():
+        return
+
+    for filepath in directory.rglob("*.py"):
+        content = filepath.read_text()
+        # Remove @pytest.mark.asyncio decorator lines
+        lines = content.split("\n")
+        filtered_lines = [line for line in lines if "@pytest.mark.asyncio" not in line]
+        filepath.write_text("\n".join(filtered_lines))
+
+
 def main() -> None:
     """Run unasync to generate sync code from async source."""
     project_root = Path(__file__).parent.parent
@@ -70,6 +83,11 @@ def main() -> None:
     try:
         # Use unasync API to generate sync code
         unasync.unasync_files(files_to_process, rules=rules)
+
+        # Post-process: Remove @pytest.mark.asyncio decorators from sync tests
+        print("Removing async test markers from sync tests...")
+        remove_async_markers(tests_sync)
+
         print("✓ Sync code generation complete!")
         print("\nGenerated sync code in:")
         print(f"  - {src_sync}")

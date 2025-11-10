@@ -75,3 +75,18 @@ This project follows a strict DRY (Don't Repeat Yourself) principle:
 - **Consistency guaranteed**: Generation ensures sync/async parity
 
 When reviewing, ensure no business logic divergence between async source and any other code.
+
+### Docstring Guidelines
+
+**Important for reviewers**: Async source docstrings must be generic to work correctly in generated sync code.
+
+✅ **Correct docstring patterns**:
+- "PyPlanhat client" (not "Async PyPlanhat client")
+- "Tests for PyPlanhat SDK" (not "Async tests" or "Sync tests")
+- "Fixture providing a PyPlanhat client" (not "async PyPlanhat client")
+
+❌ **Incorrect docstring patterns**:
+- Any docstring with "async" or "sync" specifiers
+- Implementation-specific references that won't translate
+
+**Why**: The generation process preserves docstring content but transforms code tokens. Generic docstrings ensure accurate documentation in both async and sync variants.
