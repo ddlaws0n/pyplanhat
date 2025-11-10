@@ -4,8 +4,8 @@ from typing import Any, cast
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field
 
-from pyplanhat._async.resources.base import BaseResource
 from pyplanhat._exceptions import InvalidRequestError
+from pyplanhat._sync.resources.base import BaseResource
 
 
 class Company(BaseModel):
@@ -192,19 +192,19 @@ class Company(BaseModel):
 class Companies(BaseResource):
     """Companies resource for PyPlanhat API."""
 
-    async def list(self) -> list[Company]:
+    def list(self) -> list[Company]:
         """List all companies.
 
         Returns:
             List of companies.
         """
-        response = await self._client.get("/companies")
-        data = await self._handle_response(response)
+        response = self._client.get("/companies")
+        data = self._handle_response(response)
         if not isinstance(data, list):
             return []
         return [Company(**cast(dict[str, Any], item)) for item in data]
 
-    async def get(self, company_id: str) -> Company:
+    def get(self, company_id: str) -> Company:
         """Get a specific company by ID.
 
         Args:
@@ -216,13 +216,13 @@ class Companies(BaseResource):
         Raises:
             InvalidRequestError: If the company is not found.
         """
-        response = await self._client.get(f"/companies/{company_id}")
-        data = await self._handle_response(response)
+        response = self._client.get(f"/companies/{company_id}")
+        data = self._handle_response(response)
         if data is None:
             raise InvalidRequestError("Company not found", 404, "")
         return Company(**data)
 
-    async def create(self, company: Company) -> Company:
+    def create(self, company: Company) -> Company:
         """Create a new company.
 
         Args:
@@ -231,14 +231,14 @@ class Companies(BaseResource):
         Returns:
             The created company.
         """
-        response = await self._client.post(
+        response = self._client.post(
             "/companies", json=company.model_dump(exclude_none=True, by_alias=True)
         )
-        data = await self._handle_response(response)
+        data = self._handle_response(response)
         assert data is not None  # POST should never return 204
         return Company(**data)
 
-    async def update(self, company_id: str, company: Company) -> Company:
+    def update(self, company_id: str, company: Company) -> Company:
         """Update an existing company.
 
         Args:
@@ -251,14 +251,14 @@ class Companies(BaseResource):
         Raises:
             InvalidRequestError: If the company is not found.
         """
-        response = await self._client.put(
+        response = self._client.put(
             f"/companies/{company_id}", json=company.model_dump(exclude_none=True, by_alias=True)
         )
-        data = await self._handle_response(response)
+        data = self._handle_response(response)
         assert data is not None  # PUT should never return 204
         return Company(**data)
 
-    async def delete(self, company_id: str) -> None:
+    def delete(self, company_id: str) -> None:
         """Delete a company.
 
         Args:
@@ -267,5 +267,5 @@ class Companies(BaseResource):
         Raises:
             InvalidRequestError: If the company is not found.
         """
-        response = await self._client.delete(f"/companies/{company_id}")
-        await self._handle_response(response)
+        response = self._client.delete(f"/companies/{company_id}")
+        self._handle_response(response)

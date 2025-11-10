@@ -1,5 +1,5 @@
 """Resource implementations for Planhat API."""
 
-from pyplanhat._async.resources.companies import Company
+from pyplanhat._async.resources.companies import Companies, Company
 
-__all__ = ["Company"]
+__all__ = ["Companies", "Company"]
