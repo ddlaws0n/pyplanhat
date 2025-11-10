@@ -17,8 +17,8 @@ This document contains project-specific instructions for OpenCode agents working
 ## Development Standards
 
 ### Python Environment
-- **Target**: Python 3.10+ (update from current 3.12+ constraint)
-- **Build Backend**: hatchling (already correct - do not change to uv_build)
+- **Target**: Python 3.10+
+- **Build Backend**: hatchling (preferred over uv_build)
 - **Package Manager**: uv for all workflows
 - **Virtual Environment**: uv sync for dependency management
 

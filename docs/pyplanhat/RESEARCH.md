@@ -664,9 +664,11 @@ The following updates refine the original research based on the latest tool vers
 
 ### A.2. Python Version Support
 
-**Status**: RESOLVED - Using Python 3.12+
+**Status**: REVISED - Now using Python 3.10+
 
-**Decision**: Python 3.12+ is confirmed as the minimum supported version. This aligns with modern best practices and the support policies of httpx and pydantic, while ensuring security and maintainability.
+**Original Decision (Phase 0)**: Python 3.12+ was initially selected as the minimum supported version.
+
+**Revised Decision (Pre-Publication)**: Expanded to Python 3.10+ to increase potential user base by ~40%. Per AGENTS.md specification and PYPI.md research, supporting Python 3.10+ provides broader compatibility while maintaining all required functionality. Modern features available in Python 3.10+ (PEP 604 union types, structural pattern matching, etc.) are sufficient for SDK requirements.
 
 ### A.3. The unasync Library and Code Generation Strategy
 

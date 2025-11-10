@@ -68,7 +68,7 @@ This project is currently in **Phase 0** development. The foundation is being bu
 
 ```bash
 # Clone repository
-git clone https://github.com/your-username/pyplanhat.git
+git clone https://github.com/ddlaws0n/pyplanhat.git
 cd pyplanhat
 
 # Install dependencies
