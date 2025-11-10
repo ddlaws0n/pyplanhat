@@ -252,7 +252,7 @@ def async_client() -> PyPlanhat:
 
 ## Configuration
 
-- **Python**: 3.12+ required (configured in pyproject.toml)
+- **Python**: 3.10+ required (configured in pyproject.toml)
 - **Package Manager**: `uv` (Astral stack)
 - **Linter/Formatter**: `ruff` (line-length: 99)
 - **Type Checker**: `mypy` (strict mode, disallow_untyped_defs)

@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-- Python 3.12+
+- Python 3.10+
 - uv (Astral package manager)
 - Git with GitHub CLI
 - Make (optional, for convenience scripts)
