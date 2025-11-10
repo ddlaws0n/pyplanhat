@@ -271,6 +271,146 @@ git push origin v0.1.0
 - Dependencies must exist on PyPI (TestPyPI has incomplete package index)
 - Frequent commits can hit TestPyPI size limits
 
+#### 7.2 Automated Semantic Versioning
+**Status**: Recommended for v0.2.0+ (Post-v0.1.0)
+**Tool**: Python Semantic Release (PSR)
+
+**Why After v0.1.0?**
+- First release should use simple manual process to understand PyPI publishing
+- Automation value comes with repeated releases
+- Lower-stakes testing with v0.2.0
+- Better learning path: manual → understand → automate
+
+**Benefits**:
+- Automatic version bumping based on conventional commits
+- Auto-generated CHANGELOG.md from commit messages
+- Automatic git tag creation and GitHub releases
+- Eliminates human error in version management
+- Enforces conventional commit standards
+- Handles uv.lock synchronization
+
+**How It Works**:
+1. Developers use conventional commits (`feat:`, `fix:`, `docs:`, etc.)
+2. PSR analyzes commits since last release
+3. Determines version bump (major.minor.patch)
+4. Updates `pyproject.toml` and `__version__` automatically
+5. Generates formatted CHANGELOG.md
+6. Creates git commit, tag, and GitHub release
+7. Triggers existing `release.yml` workflow via tag
+
+**Configuration** (`pyproject.toml`):
+```toml
+[tool.semantic_release]
+version_toml = ["pyproject.toml:project.version"]
+version_variables = ["src/pyplanhat/__init__.py:__version__"]
+commit_parser = "conventional"
+allow_zero_version = true
+major_on_zero = false  # 0.x.y is unstable API, no breaking changes yet
+
+# Critical: Keep uv.lock synchronized
+build_command = """
+uv lock --upgrade-package pyplanhat
+git add uv.lock
+uv build
+"""
+
+[tool.semantic_release.changelog]
+changelog_file = "CHANGELOG.md"
+exclude_commit_patterns = [
+  "^chore(?!\\(release\\))",
+  "^docs",
+  "^style",
+  "^test",
+]
+```
+
+**GitHub Actions Workflow** (`.github/workflows/release-automated.yml`):
+```yaml
+name: Automated Release
+
+on:
+  workflow_dispatch:  # Manual trigger initially
+    inputs:
+      dry_run:
+        description: 'Dry run (no changes)'
+        required: false
+        default: 'false'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Create commits and tags
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # PSR needs full git history
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: astral-sh/setup-uv@v3
+        with:
+          python-version: "3.12"
+
+      - name: Semantic Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            uvx --from="python-semantic-release" semantic-release version --noop
+          else
+            uvx --from="python-semantic-release" semantic-release version
+          fi
+```
+
+**Testing Before Implementation**:
+```bash
+# Preview what would happen (locally)
+uvx --from="python-semantic-release" semantic-release version --noop
+
+# Test version calculation
+uvx --from="python-semantic-release" semantic-release version --no-commit --no-tag
+
+# Verify changelog generation
+uvx --from="python-semantic-release" semantic-release changelog
+```
+
+**Implementation Workflow**:
+1. After v0.1.0 is published and stable
+2. Add PSR configuration to `pyproject.toml`
+3. Create `release-automated.yml` workflow
+4. Test with dry-run mode (`workflow_dispatch` with `dry_run=true`)
+5. Verify version calculation and changelog format
+6. First automated release: manually trigger workflow for v0.2.0
+7. Monitor tag creation → `release.yml` triggers → PyPI publication
+8. Eventually: automate on push to main (optional)
+
+**Lock File Synchronization (Critical)**:
+- PSR updates `pyproject.toml:project.version`
+- Without `build_command`, `uv.lock` becomes stale
+- CI workflows would fail with version mismatch
+- Solution: Include `uv lock --upgrade-package pyplanhat` in build command
+- Commits both `pyproject.toml` and `uv.lock` together
+
+**Integration with Current Setup**:
+- PSR creates git tag (e.g., `v0.2.0`)
+- Existing `release.yml` triggers on tag push
+- Quality gates run (tests, linting, type checking)
+- Trusted publishing handles PyPI upload
+- No changes needed to `release.yml`
+
+**Conventional Commit Examples**:
+```bash
+feat: add EndUsers resource implementation  # → minor bump (0.1.0 → 0.2.0)
+fix: correct Company.update() null handling  # → patch bump (0.1.0 → 0.1.1)
+feat!: redesign client initialization API    # → major bump (0.1.0 → 1.0.0)
+docs: update API reference examples          # → no version bump
+```
+
+**Resources**:
+- Official PSR Docs: https://python-semantic-release.readthedocs.io/
+- uv Integration Guide: https://python-semantic-release.readthedocs.io/en/stable/configuration/configuration-guides/uv_integration.html
+- Conventional Commits: https://www.conventionalcommits.org/
+
 ## Risk Assessment and Mitigation
 
 ### High-Risk Areas
@@ -360,6 +500,9 @@ This updated strategy reflects current Python Packaging Authority guidelines (No
 **Critical Path**: License standardization → Publishing workflow completion → Quality validation → v0.1.0 tag and release
 
 The 4-week timeline remains realistic, with trusted publishing already pending and only essential fixes required for launch.
+
+**Future Automation (v0.2.0+)**:
+After v0.1.0 is published and stable, consider implementing Python Semantic Release (PSR) for automated version management and changelog generation. See Phase 7.2 for detailed implementation strategy. Starting with manual releases for v0.1.0 provides a better learning path and lower-risk introduction to PyPI publishing.
 
 ---
 
