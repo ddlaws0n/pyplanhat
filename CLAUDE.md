@@ -11,10 +11,10 @@ PyPlanhat SDK is a modern Python SDK for the Planhat API with async-first archit
 ### Setup
 ```bash
 # Install dependencies
-uv sync --all-groups
+uv sync --extra dev --extra test
 
 # Install dependencies without resolving (if lockfile unchanged)
-uv sync --frozen
+uv sync --frozen --extra dev --extra test
 ```
 
 ### Testing
@@ -109,6 +109,23 @@ The `AsyncPyPlanhat` client:
 - Supports context manager pattern (`async with`)
 - Handles authentication via Bearer token in headers
 
+### 5. Docstring Guidelines
+
+**CRITICAL**: Docstrings in async source code are copied to sync code during generation. To avoid inconsistencies flagged by code review tools:
+
+**DO**:
+- Use generic, implementation-agnostic docstrings
+- Example: "PyPlanhat client" (not "Async PyPlanhat client")
+- Example: "Tests for PyPlanhat SDK" (not "Async tests")
+- Example: "Fixture providing a PyPlanhat client" (not "async PyPlanhat client")
+
+**DON'T**:
+- Avoid "async" or "sync" specifiers in docstrings
+- Don't reference implementation details in docstrings
+- Don't use docstrings that won't make sense in generated sync code
+
+**Why**: The `generate_sync.py` script transforms code tokens but preserves docstring content. Generic docstrings ensure both async and sync code have accurate documentation.
+
 ## Project Structure
 
 ```
@@ -171,10 +188,11 @@ Each phase must be completed before moving to the next. No scope creep beyond do
 2. **ALWAYS run `python scripts/generate_sync.py`** after modifying async code
 3. **ALWAYS commit generated sync code** alongside async source code
 4. **MAINTAIN test parity** between async and sync test suites
-5. **NO business logic in `__init__.py`** - use for exports only
-6. **USE Pydantic models** for all API data structures
-7. **PRESERVE error context** - include status_code and response_body in exceptions
-8. **FOLLOW the phased plan** - no features outside documented scope
+5. **USE generic docstrings** - avoid "async" or "sync" specifiers (see Docstring Guidelines)
+6. **NO business logic in `__init__.py`** - use for exports only
+7. **USE Pydantic models** for all API data structures
+8. **PRESERVE error context** - include status_code and response_body in exceptions
+9. **FOLLOW the phased plan** - no features outside documented scope
 
 ## Testing Guidelines
 

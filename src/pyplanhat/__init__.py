@@ -14,19 +14,19 @@ from pyplanhat._exceptions import (
 __version__ = "0.1.0"
 
 __all__ = [
-    "AsyncPyPlanhat",
-    "PyPlanhatError",
     "APIConnectionError",
     "APIError",
+    "AsyncPyPlanhat",
     "AuthenticationError",
     "InvalidRequestError",
+    "PyPlanhatError",
     "RateLimitError",
     "ServerError",
 ]
 
 # Sync client will be available after code generation
 try:
-    from pyplanhat._sync.client import PyPlanhat
+    from pyplanhat._sync.client import PyPlanhat  # noqa: F401
 
     __all__.append("PyPlanhat")
 except ImportError:

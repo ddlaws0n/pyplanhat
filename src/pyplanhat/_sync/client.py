@@ -5,7 +5,7 @@ import os
 import httpx
 
 
-class AsyncPyPlanhat:
+class PyPlanhat:
     """Planhat API client."""
 
     def __init__(
@@ -23,18 +23,18 @@ class AsyncPyPlanhat:
                 "or pass api_key parameter."
             )
 
-        self._client = httpx.AsyncClient(
+        self._client = httpx.Client(
             base_url=self.base_url,
             headers={"Authorization": f"Bearer {self.api_key}"},
             timeout=30.0,
         )
 
-    async def __aenter__(self) -> "AsyncPyPlanhat":
+    def __enter__(self) -> "PyPlanhat":
         return self
 
-    async def __aexit__(self, exc_type, exc_val, exc_tb) -> None:  # type: ignore[no-untyped-def]
-        await self.close()
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:  # type: ignore[no-untyped-def]
+        self.close()
 
-    async def close(self) -> None:
+    def close(self) -> None:
         """Close the HTTP client."""
-        await self._client.aclose()
+        self._client.close()

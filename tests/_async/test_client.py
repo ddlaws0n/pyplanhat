@@ -1,4 +1,4 @@
-"""Basic tests for AsyncPyPlanhat client."""
+"""Basic tests for PyPlanhat client."""
 
 import pytest
 
@@ -25,7 +25,7 @@ async def test_client_initialization_with_base_url() -> None:
 
 @pytest.mark.asyncio
 async def test_client_context_manager() -> None:
-    """Test that client works as async context manager."""
+    """Test that client works as context manager."""
     async with AsyncPyPlanhat(api_key="test-key") as client:
         assert client.api_key == "test-key"
 

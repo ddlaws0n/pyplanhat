@@ -16,10 +16,10 @@ from pyplanhat._exceptions import (
 class BaseResource:
     """Base class for all API resources."""
 
-    def __init__(self, client: httpx.AsyncClient) -> None:
+    def __init__(self, client: httpx.Client) -> None:
         self._client = client
 
-    async def _handle_response(self, response: httpx.Response) -> dict[str, Any]:
+    def _handle_response(self, response: httpx.Response) -> dict[str, Any]:
         """Handle HTTP response with proper error handling."""
         if response.status_code == 401 or response.status_code == 403:
             raise AuthenticationError("Authentication failed", response.status_code, response.text)

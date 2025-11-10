@@ -1,76 +1,105 @@
 #!/usr/bin/env python3
 """Generate synchronous code from async source using unasync."""
 
-import subprocess
 import sys
 from pathlib import Path
+
+import unasync
+
+
+def collect_python_files(directory: Path) -> list[str]:
+    """Collect all Python files in a directory recursively."""
+    if not directory.exists():
+        return []
+    return [str(f) for f in directory.rglob("*.py")]
+
+
+def remove_async_markers(directory: Path) -> None:
+    """Remove @pytest.mark.asyncio decorators from sync test files."""
+    if not directory.exists():
+        return
+
+    for filepath in directory.rglob("*.py"):
+        content = filepath.read_text()
+        # Remove @pytest.mark.asyncio decorator lines
+        lines = content.split("\n")
+        filtered_lines = [line for line in lines if "@pytest.mark.asyncio" not in line]
+        filepath.write_text("\n".join(filtered_lines))
 
 
 def main() -> None:
     """Run unasync to generate sync code from async source."""
-
     project_root = Path(__file__).parent.parent
 
-    # Transformation rules for unasync
+    # Define source and destination directories
+    src_async = project_root / "src" / "pyplanhat" / "_async"
+    src_sync = project_root / "src" / "pyplanhat" / "_sync"
+    tests_async = project_root / "tests" / "_async"
+    tests_sync = project_root / "tests" / "_sync"
+
+    # Additional replacements beyond the defaults
+    additional_replacements = {
+        "AsyncPyPlanhat": "PyPlanhat",
+        "AsyncClient": "Client",
+        "@pytest.mark.asyncio": "",
+        "__aenter__": "__enter__",
+        "__aexit__": "__exit__",
+        "aclose": "close",
+        "_async": "_sync",  # Transform import paths
+    }
+
+    # Create rules for transformations
     rules = [
-        ("/_async/", "/_sync/"),
-        ("async def ", "def "),
-        ("await ", ""),
-        ("AsyncClient", "Client"),
-        ("AsyncPyPlanhat", "PyPlanhat"),
-        ("@pytest.mark.asyncio", ""),
-        ("__aenter__", "__enter__"),
-        ("__aexit__", "__exit__"),
-        ("aclose", "close"),
+        unasync.Rule(
+            fromdir=str(src_async) + "/",
+            todir=str(src_sync) + "/",
+            additional_replacements=additional_replacements,
+        ),
     ]
 
-    # Build unasync command for source code
-    src_cmd = [
-        "python",
-        "-m",
-        "unasync",
-        str(project_root / "src" / "pyplanhat" / "_async"),
-        "--outdir",
-        str(project_root / "src" / "pyplanhat" / "_sync"),
-    ]
+    # Add test rules if tests exist
+    if tests_async.exists():
+        rules.append(
+            unasync.Rule(
+                fromdir=str(tests_async) + "/",
+                todir=str(tests_sync) + "/",
+                additional_replacements=additional_replacements,
+            )
+        )
 
-    for old, new in rules:
-        src_cmd.extend(["--replace", f"{old}:{new}"])
+    # Collect all Python files from async directories
+    files_to_process = []
+    files_to_process.extend(collect_python_files(src_async))
+    if tests_async.exists():
+        files_to_process.extend(collect_python_files(tests_async))
 
-    print("Generating sync source code...")
-    result = subprocess.run(src_cmd)
-
-    if result.returncode != 0:
-        print("Failed to generate sync source code", file=sys.stderr)
+    if not files_to_process:
+        print("No async Python files found to process", file=sys.stderr)
         sys.exit(1)
 
-    # Build unasync command for tests (if they exist)
-    tests_async = project_root / "tests" / "_async"
-    if tests_async.exists():
-        tests_cmd = [
-            "python",
-            "-m",
-            "unasync",
-            str(tests_async),
-            "--outdir",
-            str(project_root / "tests" / "_sync"),
-        ]
+    print(f"Processing {len(files_to_process)} files...")
+    print("Generating sync source code...")
 
-        for old, new in rules:
-            tests_cmd.extend(["--replace", f"{old}:{new}"])
+    try:
+        # Use unasync API to generate sync code
+        unasync.unasync_files(files_to_process, rules=rules)
 
-        print("Generating sync tests...")
-        result = subprocess.run(tests_cmd)
+        # Post-process: Remove @pytest.mark.asyncio decorators from sync tests
+        print("Removing async test markers from sync tests...")
+        remove_async_markers(tests_sync)
 
-        if result.returncode != 0:
-            print("Failed to generate sync tests", file=sys.stderr)
-            sys.exit(1)
-
-    print("✓ Sync code generation complete!")
-    print("\nNext steps:")
-    print("  1. Run: uv run ruff format src/pyplanhat/_sync/ tests/_sync/")
-    print("  2. Run: uv run ruff check src/pyplanhat/_sync/ tests/_sync/ --fix")
-    print("  3. Run: uv run pytest tests/_sync/ -v")
+        print("✓ Sync code generation complete!")
+        print("\nGenerated sync code in:")
+        print(f"  - {src_sync}")
+        if tests_async.exists():
+            print(f"  - {tests_sync}")
+        print("\nNext steps:")
+        print("  1. Run: uv run ruff format src/pyplanhat/_sync/ tests/_sync/")
+        print("  2. Run: uv run ruff check src/pyplanhat/_sync/ tests/_sync/ --fix")
+        print("  3. Run: uv run pytest tests/_sync/ -v")
+    except Exception as e:
+        print(f"Failed to generate sync code: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":

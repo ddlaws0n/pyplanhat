@@ -49,10 +49,10 @@
 
 [tool.ruff]
     line-length    = 99
-    select         = ["E", "F", "I", "RUF", "UP"]
-    target-version = "py313"
+    target-version = "py312"
 
     [tool.ruff.lint]
+        select = ["E", "F", "I", "RUF", "UP"]
         ignore = [
             "D10",
             "D203",
