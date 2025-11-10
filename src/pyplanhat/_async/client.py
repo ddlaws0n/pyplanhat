@@ -4,6 +4,8 @@ import os
 
 import httpx
 
+from pyplanhat._async.resources import Companies
+
 
 class AsyncPyPlanhat:
     """Planhat API client."""
@@ -28,6 +30,9 @@ class AsyncPyPlanhat:
             headers={"Authorization": f"Bearer {self.api_key}"},
             timeout=30.0,
         )
+
+        # Initialize resources
+        self.companies = Companies(self._client)
 
     async def __aenter__(self) -> "AsyncPyPlanhat":
         return self

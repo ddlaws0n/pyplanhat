@@ -3,8 +3,6 @@
 import pytest
 import pytest_asyncio
 
-from pyplanhat._async.client import AsyncPyPlanhat
-from pyplanhat._async.resources.companies import Company
 from pyplanhat._exceptions import (
     APIError,
     AuthenticationError,
@@ -12,6 +10,8 @@ from pyplanhat._exceptions import (
     RateLimitError,
     ServerError,
 )
+from pyplanhat._sync.client import PyPlanhat
+from pyplanhat._sync.resources.companies import Company
 
 
 def test_company_minimal_creation():
@@ -262,15 +262,14 @@ def test_company_model_json_schema():
 
 
 @pytest_asyncio.fixture
-async def async_client():
+def async_client():
     """Fixture providing an async PyPlanhat client."""
-    client = AsyncPyPlanhat(api_key="test-key")
+    client = PyPlanhat(api_key="test-key")
     yield client
-    await client.close()
+    client.close()
 
 
-@pytest.mark.asyncio
-async def test_list_companies_success(async_client, httpx_mock):
+def test_list_companies_success(async_client, httpx_mock):
     """Test listing all companies successfully."""
     mock_response = [
         {
@@ -295,7 +294,7 @@ async def test_list_companies_success(async_client, httpx_mock):
         json=mock_response,
     )
 
-    companies = await async_client.companies.list()
+    companies = async_client.companies.list()
 
     assert len(companies) == 2
     assert companies[0].id == "company-1"
@@ -311,8 +310,7 @@ async def test_list_companies_success(async_client, httpx_mock):
     assert companies[1].mrr == 0.0
 
 
-@pytest.mark.asyncio
-async def test_list_companies_empty(async_client, httpx_mock):
+def test_list_companies_empty(async_client, httpx_mock):
     """Test listing companies when no companies exist."""
     httpx_mock.add_response(
         method="GET",
@@ -320,13 +318,12 @@ async def test_list_companies_empty(async_client, httpx_mock):
         json=[],
     )
 
-    companies = await async_client.companies.list()
+    companies = async_client.companies.list()
 
     assert companies == []
 
 
-@pytest.mark.asyncio
-async def test_get_company_success(async_client, httpx_mock):
+def test_get_company_success(async_client, httpx_mock):
     """Test getting a specific company successfully."""
     mock_response = {
         "_id": "company-123",
@@ -343,7 +340,7 @@ async def test_get_company_success(async_client, httpx_mock):
         json=mock_response,
     )
 
-    company = await async_client.companies.get("company-123")
+    company = async_client.companies.get("company-123")
 
     assert company.id == "company-123"
     assert company.name == "Test Company"
@@ -353,8 +350,7 @@ async def test_get_company_success(async_client, httpx_mock):
     assert company.custom == {"tier": "Enterprise"}
 
 
-@pytest.mark.asyncio
-async def test_get_company_not_found(async_client, httpx_mock):
+def test_get_company_not_found(async_client, httpx_mock):
     """Test getting a non-existent company raises error."""
     httpx_mock.add_response(
         method="GET",
@@ -364,14 +360,13 @@ async def test_get_company_not_found(async_client, httpx_mock):
     )
 
     with pytest.raises(InvalidRequestError) as exc_info:
-        await async_client.companies.get("nonexistent")
+        async_client.companies.get("nonexistent")
 
     assert exc_info.value.status_code == 404
     assert "Company not found" in exc_info.value.response_body
 
 
-@pytest.mark.asyncio
-async def test_create_company_success(async_client, httpx_mock):
+def test_create_company_success(async_client, httpx_mock):
     """Test creating a new company successfully."""
     new_company = Company(
         name="New Company",
@@ -395,7 +390,7 @@ async def test_create_company_success(async_client, httpx_mock):
         json=mock_response,
     )
 
-    created_company = await async_client.companies.create(new_company)
+    created_company = async_client.companies.create(new_company)
 
     assert created_company.id == "company-new"
     assert created_company.name == "New Company"
@@ -404,8 +399,7 @@ async def test_create_company_success(async_client, httpx_mock):
     assert created_company.custom == {"industry": "Technology"}
 
 
-@pytest.mark.asyncio
-async def test_create_company_validation_error(async_client, httpx_mock):
+def test_create_company_validation_error(async_client, httpx_mock):
     """Test creating a company with invalid data raises error."""
     httpx_mock.add_response(
         method="POST",
@@ -417,14 +411,13 @@ async def test_create_company_validation_error(async_client, httpx_mock):
     company = Company(name="Test Company")
 
     with pytest.raises(APIError) as exc_info:
-        await async_client.companies.create(company)
+        async_client.companies.create(company)
 
     assert exc_info.value.status_code == 400
     assert "Invalid request" in str(exc_info.value)
 
 
-@pytest.mark.asyncio
-async def test_update_company_success(async_client, httpx_mock):
+def test_update_company_success(async_client, httpx_mock):
     """Test updating an existing company successfully."""
     updated_company = Company(
         name="Updated Company",
@@ -445,7 +438,7 @@ async def test_update_company_success(async_client, httpx_mock):
         json=mock_response,
     )
 
-    result = await async_client.companies.update("company-123", updated_company)
+    result = async_client.companies.update("company-123", updated_company)
 
     assert result.id == "company-123"
     assert result.name == "Updated Company"
@@ -453,8 +446,7 @@ async def test_update_company_success(async_client, httpx_mock):
     assert result.mrr == 5000.0
 
 
-@pytest.mark.asyncio
-async def test_update_company_not_found(async_client, httpx_mock):
+def test_update_company_not_found(async_client, httpx_mock):
     """Test updating a non-existent company raises error."""
     httpx_mock.add_response(
         method="PUT",
@@ -466,14 +458,13 @@ async def test_update_company_not_found(async_client, httpx_mock):
     company = Company(name="Test Company")
 
     with pytest.raises(InvalidRequestError) as exc_info:
-        await async_client.companies.update("nonexistent", company)
+        async_client.companies.update("nonexistent", company)
 
     assert exc_info.value.status_code == 404
     assert "Company not found" in exc_info.value.response_body
 
 
-@pytest.mark.asyncio
-async def test_delete_company_success(async_client, httpx_mock):
+def test_delete_company_success(async_client, httpx_mock):
     """Test deleting a company successfully."""
     httpx_mock.add_response(
         method="DELETE",
@@ -482,11 +473,10 @@ async def test_delete_company_success(async_client, httpx_mock):
     )
 
     # Should not raise any exception
-    await async_client.companies.delete("company-123")
+    async_client.companies.delete("company-123")
 
 
-@pytest.mark.asyncio
-async def test_delete_company_not_found(async_client, httpx_mock):
+def test_delete_company_not_found(async_client, httpx_mock):
     """Test deleting a non-existent company raises error."""
     httpx_mock.add_response(
         method="DELETE",
@@ -496,14 +486,13 @@ async def test_delete_company_not_found(async_client, httpx_mock):
     )
 
     with pytest.raises(InvalidRequestError) as exc_info:
-        await async_client.companies.delete("nonexistent")
+        async_client.companies.delete("nonexistent")
 
     assert exc_info.value.status_code == 404
     assert "Company not found" in exc_info.value.response_body
 
 
-@pytest.mark.asyncio
-async def test_authentication_error(async_client, httpx_mock):
+def test_authentication_error(async_client, httpx_mock):
     """Test authentication error handling."""
     httpx_mock.add_response(
         method="GET",
@@ -513,14 +502,13 @@ async def test_authentication_error(async_client, httpx_mock):
     )
 
     with pytest.raises(AuthenticationError) as exc_info:
-        await async_client.companies.list()
+        async_client.companies.list()
 
     assert exc_info.value.status_code == 401
     assert "Invalid API key" in exc_info.value.response_body
 
 
-@pytest.mark.asyncio
-async def test_rate_limit_error(async_client, httpx_mock):
+def test_rate_limit_error(async_client, httpx_mock):
     """Test rate limit error handling."""
     httpx_mock.add_response(
         method="GET",
@@ -530,14 +518,13 @@ async def test_rate_limit_error(async_client, httpx_mock):
     )
 
     with pytest.raises(RateLimitError) as exc_info:
-        await async_client.companies.list()
+        async_client.companies.list()
 
     assert exc_info.value.status_code == 429
     assert "Rate limit exceeded" in str(exc_info.value)
 
 
-@pytest.mark.asyncio
-async def test_server_error(async_client, httpx_mock):
+def test_server_error(async_client, httpx_mock):
     """Test server error handling."""
     httpx_mock.add_response(
         method="GET",
@@ -547,14 +534,13 @@ async def test_server_error(async_client, httpx_mock):
     )
 
     with pytest.raises(ServerError) as exc_info:
-        await async_client.companies.list()
+        async_client.companies.list()
 
     assert exc_info.value.status_code == 500
     assert "Internal server error" in str(exc_info.value)
 
 
-@pytest.mark.asyncio
-async def test_generic_api_error(async_client, httpx_mock):
+def test_generic_api_error(async_client, httpx_mock):
     """Test generic API error handling for other 4xx errors."""
     httpx_mock.add_response(
         method="GET",
@@ -564,7 +550,7 @@ async def test_generic_api_error(async_client, httpx_mock):
     )
 
     with pytest.raises(APIError) as exc_info:
-        await async_client.companies.list()
+        async_client.companies.list()
 
     assert exc_info.value.status_code == 422
     assert "Unprocessable entity" in str(exc_info.value)
