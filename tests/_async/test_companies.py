@@ -1,9 +1,7 @@
 """Tests for Company Pydantic model and Companies resource."""
 
 import pytest
-import pytest_asyncio
 
-from pyplanhat._async.client import AsyncPyPlanhat
 from pyplanhat._async.resources.companies import Company
 from pyplanhat._exceptions import (
     APIError,
@@ -259,14 +257,6 @@ def test_company_model_json_schema():
 
 
 # CRUD Tests for Companies Resource
-
-
-@pytest_asyncio.fixture
-async def async_client():
-    """Fixture providing an async PyPlanhat client."""
-    client = AsyncPyPlanhat(api_key="test-key")
-    yield client
-    await client.close()
 
 
 @pytest.mark.asyncio

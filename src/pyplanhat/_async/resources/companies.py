@@ -1,11 +1,8 @@
 """Company resource for PyPlanhat SDK."""
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any, cast
 
 from pydantic import AliasChoices, BaseModel, ConfigDict, Field
-
-if TYPE_CHECKING:
-    pass
 
 from pyplanhat._async.resources.base import BaseResource
 from pyplanhat._exceptions import InvalidRequestError
@@ -238,8 +235,7 @@ class Companies(BaseResource):
             "/companies", json=company.model_dump(exclude_none=True, by_alias=True)
         )
         data = await self._handle_response(response)
-        if data is None:
-            raise InvalidRequestError("Company creation failed", 500, "")
+        assert data is not None  # POST should never return 204
         return Company(**data)
 
     async def update(self, company_id: str, company: Company) -> Company:
@@ -259,8 +255,7 @@ class Companies(BaseResource):
             f"/companies/{company_id}", json=company.model_dump(exclude_none=True, by_alias=True)
         )
         data = await self._handle_response(response)
-        if data is None:
-            raise InvalidRequestError("Company update failed", 500, "")
+        assert data is not None  # PUT should never return 204
         return Company(**data)
 
     async def delete(self, company_id: str) -> None:

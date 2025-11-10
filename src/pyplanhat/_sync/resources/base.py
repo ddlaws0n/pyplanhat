@@ -35,14 +35,12 @@ class BaseResource:
             )
         elif response.status_code >= 500:
             raise ServerError(
-                response.text or f"Server error: {response.text}",
+                response.text or "Server error",
                 response.status_code,
                 response.text,
             )
         elif response.status_code >= 400:
-            raise APIError(
-                response.text or f"API error: {response.text}", response.status_code, response.text
-            )
+            raise APIError(response.text or "API error", response.status_code, response.text)
 
         response.raise_for_status()
 
