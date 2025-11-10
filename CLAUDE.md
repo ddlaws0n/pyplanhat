@@ -101,6 +101,22 @@ Each resource (Companies, EndUsers, Conversations) follows this pattern:
 - Uses Pydantic models for data validation
 - HTTP responses handled via `_handle_response()` method with proper error mapping
 
+**Type-Safe Response Handling**:
+```python
+async def create(self, item: Model) -> Model:
+    response = await self._client.post("/endpoint", json=item.model_dump(...))
+    data = await self._handle_response(response)
+    assert data is not None  # POST/PUT should never return 204
+    return Model(**data)
+```
+
+**Error Handling Best Practices**:
+- ✅ **DO** trust `_handle_response()` to raise exceptions for HTTP errors
+- ✅ **DO** use assertions for type narrowing (mypy compliance)
+- ✅ **DO** use simple error messages: `response.text or "Server error"`
+- ❌ **DON'T** raise exceptions with status 500 for defensive None checks
+- ❌ **DON'T** use redundant f-strings: `response.text or f"Error: {response.text}"`
+
 ### 4. Client Architecture
 
 The `AsyncPyPlanhat` client:
@@ -196,11 +212,43 @@ Each phase must be completed before moving to the next. No scope creep beyond do
 
 ## Testing Guidelines
 
+### Test Framework Setup
 - Use `pytest` with `pytest-asyncio` for async tests
-- Use `responses` or `httpx_mock` for HTTP mocking
+- Use `pytest-httpx` for HTTP mocking (NOT `responses` library)
 - Test happy path AND all error scenarios (400, 401, 403, 404, 429, 5xx)
 - Maintain 90%+ test coverage
 - Ensure async and sync tests are structurally identical (except async/await keywords)
+
+### Fixture Best Practices (CRITICAL)
+
+**Async Fixtures** (`tests/_async/conftest.py`):
+```python
+import pytest_asyncio
+
+@pytest_asyncio.fixture  # ← Use pytest_asyncio decorator
+async def async_client() -> AsyncPyPlanhat:
+    client = AsyncPyPlanhat(api_key="test-key")
+    yield client
+    await client.close()
+```
+
+**Sync Fixtures** (`tests/_sync/conftest.py`):
+```python
+import pytest
+
+@pytest.fixture  # ← Use standard pytest decorator (NOT pytest_asyncio)
+def async_client() -> PyPlanhat:
+    client = PyPlanhat(api_key="test-key")
+    yield client
+    client.close()
+```
+
+**Common Pitfalls to Avoid**:
+- ❌ **DON'T** redefine fixtures in test files if they exist in conftest.py
+- ❌ **DON'T** use `@pytest_asyncio.fixture` for sync fixtures (unasync doesn't fix this)
+- ❌ **DON'T** use `@pytest.fixture` for async fixtures (pytest-asyncio requires correct decorator)
+- ✅ **DO** keep fixtures in conftest.py for reusability
+- ✅ **DO** verify generated sync fixtures use `@pytest.fixture` after code generation
 
 ## Configuration
 

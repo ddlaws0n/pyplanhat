@@ -133,6 +133,25 @@ class ServerError(APIError):
 - **Maintain test parity** - both suites must be equivalent
 - **Use `@pytest.mark.asyncio`** for async test functions only
 
+**Fixture Configuration (CRITICAL - Phase 1 Lesson)**:
+- ✅ **Async fixtures**: Use `@pytest_asyncio.fixture` decorator
+- ✅ **Sync fixtures**: Use `@pytest.fixture` decorator (NOT pytest_asyncio)
+- ✅ **Keep fixtures in conftest.py** - Don't duplicate in test files
+- ⚠️ **After code generation**: Verify sync conftest uses `@pytest.fixture`
+- ⚠️ **Common bug**: unasync copies `@pytest_asyncio.fixture` to sync code (incorrect)
+
+**Type-Safe Response Handling**:
+```python
+# Correct pattern for create/update operations
+data = await self._handle_response(response)
+assert data is not None  # POST/PUT should never return 204
+return Model(**data)
+
+# WRONG: Don't raise status 500 for defensive checks
+# if data is None:
+#     raise InvalidRequestError("Failed", 500, "")  # ❌
+```
+
 ### 5. API Integration Patterns
 - **Use httpx.AsyncClient** for async implementation
 - **Use httpx.Client** for sync implementation (generated)
@@ -207,7 +226,9 @@ Final release to PyPI:
 3. ✅ **Formatted**: `ruff format --check .` passes
 4. ✅ **Type Checked**: `mypy src/` passes without errors
 5. ✅ **Generated Code**: Sync code regenerated and committed
-6. ✅ **Documentation**: Updated if API changes made
+6. ✅ **Fixture Decorators**: Sync conftest uses `@pytest.fixture` (not `@pytest_asyncio.fixture`)
+7. ✅ **No Duplicate Fixtures**: Test files don't redefine conftest fixtures
+8. ✅ **Documentation**: Updated if API changes made
 
 ### Before Phase Completion
 1. ✅ **All Tasks Complete**: Every task in phase meets criteria

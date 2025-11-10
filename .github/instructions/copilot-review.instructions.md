@@ -90,3 +90,89 @@ When reviewing, ensure no business logic divergence between async source and any
 - Implementation-specific references that won't translate
 
 **Why**: The generation process preserves docstring content but transforms code tokens. Generic docstrings ensure accurate documentation in both async and sync variants.
+
+## Common Issues to Watch For (Phase 1 Lessons)
+
+### 1. Fixture Decorator Mismatches
+
+**Async fixtures** must use `@pytest_asyncio.fixture`:
+```python
+# ✅ CORRECT (tests/_async/conftest.py)
+import pytest_asyncio
+
+@pytest_asyncio.fixture
+async def async_client() -> AsyncPyPlanhat:
+    ...
+```
+
+**Sync fixtures** must use `@pytest.fixture`:
+```python
+# ✅ CORRECT (tests/_sync/conftest.py)
+import pytest
+
+@pytest.fixture  # NOT pytest_asyncio.fixture
+def async_client() -> PyPlanhat:
+    ...
+```
+
+**Common Bug**: unasync copies `@pytest_asyncio.fixture` to sync code - this is **incorrect** and causes test failures.
+
+### 2. Duplicate Fixtures
+
+❌ **DON'T** redefine fixtures in test files if they already exist in conftest.py:
+```python
+# ❌ BAD - test_companies.py
+@pytest_asyncio.fixture
+async def async_client():  # Already in conftest!
+    ...
+```
+
+This causes fixture conflicts and test failures.
+
+### 3. Type-Safe Response Handling
+
+✅ **DO** use assertions for type narrowing:
+```python
+async def create(self, item: Model) -> Model:
+    data = await self._handle_response(response)
+    assert data is not None  # mypy type narrowing
+    return Model(**data)
+```
+
+❌ **DON'T** raise status 500 for defensive None checks:
+```python
+# ❌ BAD - Status 500 = server error, not client logic
+if data is None:
+    raise InvalidRequestError("Failed", 500, "")
+```
+
+### 4. Error Message Redundancy
+
+❌ **Redundant f-string**:
+```python
+response.text or f"Server error: {response.text}"  # ❌
+```
+
+✅ **Simple fallback**:
+```python
+response.text or "Server error"  # ✅
+```
+
+**Why redundant**: When `response.text` is truthy, the f-string is never evaluated.
+
+### 5. Trust _handle_response()
+
+The `_handle_response()` method already raises exceptions for HTTP errors (4xx, 5xx).
+
+✅ **DO** trust it to handle errors:
+```python
+data = await self._handle_response(response)
+return Model(**data)  # If we reach here, response was successful
+```
+
+❌ **DON'T** add defensive checks with incorrect status codes:
+```python
+# ❌ Unnecessary - _handle_response already raised if error
+if data is None:
+    raise InvalidRequestError("Failed", 500, "")
+```
