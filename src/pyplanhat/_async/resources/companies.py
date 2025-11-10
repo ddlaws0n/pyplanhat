@@ -185,5 +185,4 @@ class Company(BaseModel):
     # Custom fields
     custom: dict[str, Any] = Field(default_factory=dict)
 
-
-model_config = ConfigDict(populate_by_name=True)
+    model_config = ConfigDict(populate_by_name=True)
