@@ -4,7 +4,7 @@ import os
 
 import httpx
 
-from pyplanhat._sync.resources import Companies
+from pyplanhat._sync.resources import Companies, Conversations, EndUsers
 
 
 class PyPlanhat:
@@ -33,6 +33,8 @@ class PyPlanhat:
 
         # Initialize resources
         self.companies = Companies(self._client)
+        self.endusers = EndUsers(self._client)
+        self.conversations = Conversations(self._client)
 
     def __enter__(self) -> "PyPlanhat":
         return self

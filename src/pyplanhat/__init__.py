@@ -1,6 +1,7 @@
 """PyPlanhat SDK - Async-first Python SDK for Planhat API."""
 
 from pyplanhat._async.client import AsyncPyPlanhat
+from pyplanhat._async.resources import Company, Conversation, EndUser
 from pyplanhat._exceptions import (
     APIConnectionError,
     APIError,
@@ -18,6 +19,9 @@ __all__ = [
     "APIError",
     "AsyncPyPlanhat",
     "AuthenticationError",
+    "Company",
+    "Conversation",
+    "EndUser",
     "InvalidRequestError",
     "PyPlanhatError",
     "RateLimitError",

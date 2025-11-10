@@ -9,6 +9,7 @@ Modern async-first Python SDK for the Planhat API.
 - 🔒 **Type-safe** with full mypy support
 - ✨ **Comprehensive error handling** with custom exception hierarchy
 - 🧪 **Extensively tested** with 90%+ coverage
+- 📚 **Complete resource coverage** - Companies, EndUsers, Conversations
 
 ## Installation
 
@@ -18,16 +19,33 @@ pip install pyplanhat
 
 ## Quick Start
 
-### Async Usage
+### Async Usage (Recommended)
 
 ```python
 import asyncio
-from pyplanhat import AsyncPyPlanhat
+from pyplanhat import AsyncPyPlanhat, Company
 
 async def main():
     async with AsyncPyPlanhat(api_key="your-api-key") as client:
-        # API calls here (Phase 1+)
-        pass
+        # List all companies
+        companies = await client.companies.list()
+
+        # Get a specific company
+        company = await client.companies.get("company-id")
+
+        # Create a new company
+        new_company = Company(
+            name="Acme Corporation",
+            status="prospect",
+            custom={"industry": "Technology"}
+        )
+        created = await client.companies.create(new_company)
+
+        # Work with end users
+        users = await client.endusers.list(company_id=company.id)
+
+        # Work with conversations
+        conversations = await client.conversations.list(company_id=company.id)
 
 asyncio.run(main())
 ```
@@ -35,12 +53,15 @@ asyncio.run(main())
 ### Sync Usage
 
 ```python
-from pyplanhat import PyPlanhat
+from pyplanhat import PyPlanhat, Company
 
 with PyPlanhat(api_key="your-api-key") as client:
-    # API calls here (Phase 1+)
-    pass
+    # All the same methods work synchronously
+    companies = client.companies.list()
+    company = client.companies.get("company-id")
 ```
+
+For detailed examples and advanced usage, see [USAGE.md](USAGE.md).
 
 ## Configuration
 
@@ -60,9 +81,22 @@ client = AsyncPyPlanhat(
 )
 ```
 
-## Development
+## Resources
 
-This project is currently in **Phase 0** development. The foundation is being built using a phased approach with OpenCode agents.
+PyPlanhat provides complete CRUD operations for the following Planhat resources:
+
+- **Companies** - Manage customer companies with full lifecycle tracking
+- **EndUsers** - Manage contacts and end users within companies
+- **Conversations** - Track interactions, meetings, and communications
+
+Each resource supports:
+- `list()` - Get all resources (with optional filtering)
+- `get(id)` - Get a specific resource by ID
+- `create(resource)` - Create a new resource
+- `update(id, resource)` - Update an existing resource
+- `delete(id)` - Delete a resource
+
+## Development
 
 ### Setup
 
@@ -128,11 +162,11 @@ tests/
 
 ## Roadmap
 
-- **Phase 0**: Foundation (exception hierarchy, client shell, code generation) ✅ **In Progress**
-- **Phase 1**: Companies resource implementation
-- **Phase 2**: EndUsers and Conversations resources
-- **Phase 3**: Documentation (mkdocs, API reference)
-- **Phase 4**: Release to PyPI
+- **Phase 0**: Foundation (exception hierarchy, client shell, code generation) ✅ **Complete**
+- **Phase 1**: Companies resource implementation ✅ **Complete**
+- **Phase 2**: EndUsers and Conversations resources ✅ **Complete**
+- **Phase 3**: Documentation (mkdocs, API reference) 🚧 **In Progress**
+- **Phase 4**: Release to PyPI ✅ **Complete** (v0.1.0 published)
 
 ## Contributing
 
