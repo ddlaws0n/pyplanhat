@@ -57,9 +57,7 @@ class Company(BaseModel):
     # Financial fields (auto-generated, read-only)
     mrr: float | None = None  # Monthly Recurring Revenue
     arr: float | None = None  # Annual Recurring Revenue
-    nrr30: float | None = Field(
-        default=None, validation_alias=AliasChoices("nrr30", "nrr30"), serialization_alias="nrr30"
-    )  # Net Revenue Retention 30 days
+    nrr30: float | None = None  # Net Revenue Retention 30 days
     mrr_total: float | None = Field(
         default=None,
         validation_alias=AliasChoices("mrrTotal", "mrr_total"),
