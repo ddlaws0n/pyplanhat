@@ -2,7 +2,7 @@
 
 from typing import Any, cast
 
-from pydantic import AliasChoices, BaseModel, ConfigDict, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, field_validator
 
 from pyplanhat._async.resources.base import BaseResource
 from pyplanhat._exceptions import InvalidRequestError
@@ -144,6 +144,94 @@ class EndUser(BaseModel):
 
     # Custom fields
     custom: dict[str, Any] = Field(default_factory=dict)
+
+    @field_validator("tags", "other_emails", "related_endusers", mode="before")
+    @classmethod
+    def parse_comma_delimited_list(cls, v: Any) -> list[str] | None:
+        """Convert comma-delimited string to list.
+
+        Handles API responses where list fields are returned as comma-delimited
+        strings (e.g., ",id1,id2,") instead of proper JSON arrays.
+
+        Args:
+            v: The input value (string, list, or None)
+
+        Returns:
+            Parsed list of strings, or None if empty/None input
+        """
+        # If already None or a list, return as-is
+        if v is None or isinstance(v, list):
+            return v
+
+        # If it's a string, parse it
+        if isinstance(v, str):
+            # Split by comma and filter out empty/whitespace-only items
+            items = [item.strip() for item in v.split(",") if item.strip()]
+            # If no items remain, return None (matches field default)
+            return items if items else None
+
+        # If it's something else, return it and let Pydantic handle validation error
+        return v
+
+    @field_validator("beat_trend", "experience", mode="before")
+    @classmethod
+    def normalize_string_field(cls, v: Any) -> str | None:
+        """Normalize string fields - convert non-None values to strings.
+
+        Handles API responses where string fields are returned as numeric codes
+        or other non-string types.
+
+        Args:
+            v: The input value (any type or None)
+
+        Returns:
+            String representation of the value, or None if None input
+        """
+        if v is None:
+            return None
+        return str(v)
+
+    @field_validator("featured", "primary", "archived", "nps_unsubscribed", mode="before")
+    @classmethod
+    def normalize_boolean(cls, v: Any) -> bool | None:
+        """Normalize boolean fields - handle empty strings and truthy values.
+
+        Handles API responses where boolean fields are returned as empty strings,
+        numeric values, or string representations.
+
+        Args:
+            v: The input value (any type or None)
+
+        Returns:
+            Boolean value, or None if None/empty string input
+        """
+        if v is None or v == "":
+            return None
+        if isinstance(v, bool):
+            return v
+        # Handle string representations
+        if isinstance(v, str):
+            return v.lower() in ("true", "1", "yes")
+        # Handle numeric representations
+        return bool(v)
+
+    @field_validator("last_activities", mode="before")
+    @classmethod
+    def normalize_list_field(cls, v: Any) -> list[Any] | None:
+        """Normalize list fields - wrap scalar values in a list.
+
+        Handles API responses where list fields are returned as scalar values
+        instead of proper JSON arrays.
+
+        Args:
+            v: The input value (scalar, list, or None)
+
+        Returns:
+            List containing the value, or None if None input
+        """
+        if v is None or isinstance(v, list):
+            return v
+        return [v]
 
     model_config = ConfigDict(populate_by_name=True)
 

@@ -7,6 +7,55 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.2] - 2025-11-11
+
+### Fixed
+
+#### API Type Inconsistencies
+- **Company.orgUnits** - Now handles API returning integer counts instead of arrays
+  - Added `normalize_list_field` validator to wrap scalars in lists
+- **EndUser.beatTrend** - Now accepts integer codes from API and converts to strings
+  - Added `normalize_string_field` validator for type coercion
+- **EndUser.experience** - Now accepts integer values from API and converts to strings
+  - Added `normalize_string_field` validator for type coercion
+- **Conversation.hasMore** - Now handles empty strings from API
+  - Added `normalize_boolean` validator to convert empty strings to None
+- **Conversation.endusers** - Changed from `list[str]` to `list[Any]`
+  - Now correctly accepts list of objects `[{"id": "...", "name": "..."}]` from API
+  - Maintains backward compatibility with string lists
+- All boolean fields in EndUser and Conversation models
+  - Added `normalize_boolean` validator to handle empty strings, numeric values, and string representations
+
+#### Defensive Validators
+- Added validators to other list fields to prevent future issues:
+  - Company: `alerts`, `last_activities`
+  - EndUser: `last_activities`
+  - Conversation: `users`, `time_bucket`, `sender`, `history`
+
+### Added
+
+#### Test Coverage
+- 16 new validator test cases covering all fixed fields:
+  - 4 tests for Company model (orgUnits, alerts, lastActivities)
+  - 7 tests for EndUser model (beatTrend, experience, boolean fields, lastActivities)
+  - 5 tests for Conversation model (hasMore, boolean fields, list fields, endusers)
+- Tests verify both problematic API values and proper values work correctly
+- All 192 tests passing (async + sync)
+
+### Changed
+- Enhanced main.py test script to handle endusers as list of objects
+- Updated Conversation.endusers comment to reflect actual API behavior
+
+### Quality Assurance
+- ✅ 192 tests passing (100% pass rate, +4 new tests for endusers)
+- ✅ Zero linting issues (ruff)
+- ✅ Zero type errors (mypy)
+- ✅ Validators validated against real Planhat API responses
+
+---
+
+*Note: Version 0.2.2 focuses on robustness and handling real-world API inconsistencies. All Pydantic validation errors from actual API responses are now gracefully handled.*
+
 ## [0.2.0] - 2025-11-11
 
 ### Added

@@ -256,6 +256,133 @@ def test_company_model_json_schema():
     assert properties["custom"] is not None
 
 
+# Field Validator Tests
+
+
+def test_org_path_comma_delimited_string():
+    """Test parsing orgPath from comma-delimited string."""
+    company = Company(name="Test", orgPath=",6046f75bec36607c1d508fff,")
+
+    assert company.org_path == ["6046f75bec36607c1d508fff"]
+
+
+def test_org_path_multiple_ids():
+    """Test parsing orgPath with multiple IDs."""
+    company = Company(name="Test", orgPath=",id1,id2,id3,")
+
+    assert company.org_path == ["id1", "id2", "id3"]
+
+
+def test_org_path_proper_list():
+    """Test that proper list input is passed through unchanged."""
+    company = Company(name="Test", orgPath=["id1", "id2"])
+
+    assert company.org_path == ["id1", "id2"]
+
+
+def test_org_path_empty_list():
+    """Test that empty list is preserved."""
+    company = Company(name="Test", orgPath=[])
+
+    assert company.org_path == []
+
+
+def test_org_path_none():
+    """Test that None input returns None."""
+    company = Company(name="Test", orgPath=None)
+
+    assert company.org_path is None
+
+
+def test_org_path_empty_string():
+    """Test that empty string returns None."""
+    company = Company(name="Test", orgPath="")
+
+    assert company.org_path is None
+
+
+def test_org_path_whitespace_handling():
+    """Test that whitespace is stripped from values."""
+    company = Company(name="Test", orgPath=", id1 , id2 ,")
+
+    assert company.org_path == ["id1", "id2"]
+
+
+def test_org_path_single_value_without_commas():
+    """Test parsing single value without commas."""
+    company = Company(name="Test", orgPath="single-id")
+
+    assert company.org_path == ["single-id"]
+
+
+def test_domains_comma_delimited_string():
+    """Test parsing domains from comma-delimited string."""
+    company = Company(name="Test", domains=",example.com,test.com,")
+
+    assert company.domains == ["example.com", "test.com"]
+
+
+def test_domains_proper_list():
+    """Test that domains proper list input is passed through unchanged."""
+    company = Company(name="Test", domains=["example.com", "test.com"])
+
+    assert company.domains == ["example.com", "test.com"]
+
+
+def test_domains_none():
+    """Test that domains None input returns None."""
+    company = Company(name="Test", domains=None)
+
+    assert company.domains is None
+
+
+def test_full_company_with_comma_delimited_fields():
+    """Test creating a company with comma-delimited list fields (simulates real API response)."""
+    api_response = {
+        "name": "Test Company",
+        "_id": "company-123",
+        "orgPath": ",org-root,org-child,",
+        "domains": ",example.com,test.com,",
+        "mrr": 1000.0,
+    }
+
+    company = Company(**api_response)
+
+    assert company.name == "Test Company"
+    assert company.id == "company-123"
+    assert company.org_path == ["org-root", "org-child"]
+    assert company.domains == ["example.com", "test.com"]
+    assert company.mrr == 1000.0
+
+
+def test_org_units_scalar_to_list():
+    """Test orgUnits accepts scalar and converts to list."""
+    company = Company(name="Test", orgUnits=1)
+
+    assert company.org_units == [1]
+
+
+def test_org_units_proper_list():
+    """Test orgUnits accepts proper list unchanged."""
+    company = Company(name="Test", orgUnits=[{"id": "unit-1"}])
+
+    assert company.org_units == [{"id": "unit-1"}]
+
+
+def test_alerts_scalar_to_list():
+    """Test alerts accepts scalar and converts to list."""
+    company = Company(name="Test", alerts=5)
+
+    assert company.alerts == [5]
+
+
+def test_last_activities_scalar_to_list():
+    """Test lastActivities accepts scalar and converts to list."""
+    company = Company(name="Test", lastActivities={"type": "call"})
+
+    assert company.last_activities == [{"type": "call"}]
+
+
 # CRUD Tests for Companies Resource
 
 

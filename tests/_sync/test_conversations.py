@@ -214,6 +214,63 @@ def test_conversation_field_population_by_name():
     assert conv2.activity_tags == ["tag2"]
 
 
+def test_has_more_empty_string_to_none():
+    """Test hasMore handles empty string."""
+    conv = Conversation(hasMore="", companyId="test-company")
+
+    assert conv.has_more is None
+
+
+def test_has_more_proper_boolean():
+    """Test hasMore accepts proper boolean unchanged."""
+    conv = Conversation(hasMore=False, companyId="test-company")
+
+    assert conv.has_more is False
+
+
+def test_boolean_truthy_values():
+    """Test boolean fields handle various truthy representations."""
+    conv1 = Conversation(hasMore=1, starred="true", pinned="yes", companyId="test")
+
+    assert conv1.has_more is True
+    assert conv1.starred is True
+    assert conv1.pinned is True
+
+    conv2 = Conversation(hasMore=0, starred="false", pinned="no", companyId="test")
+
+    assert conv2.has_more is False
+    assert conv2.starred is False
+    assert conv2.pinned is False
+
+
+def test_users_scalar_to_list():
+    """Test users accepts scalar and converts to list."""
+    conv = Conversation(users={"id": "user-1"}, companyId="test")
+
+    assert conv.users == [{"id": "user-1"}]
+
+
+def test_sender_scalar_to_list():
+    """Test sender accepts scalar and converts to list."""
+    conv = Conversation(sender={"email": "test@example.com"}, companyId="test")
+
+    assert conv.sender == [{"email": "test@example.com"}]
+
+
+def test_endusers_accepts_objects():
+    """Test endusers accepts list of objects (not just strings)."""
+    conv = Conversation(endusers=[{"id": "user-1", "name": "John Smith"}], companyId="test")
+
+    assert conv.endusers == [{"id": "user-1", "name": "John Smith"}]
+
+
+def test_endusers_accepts_strings():
+    """Test endusers still accepts list of strings for backward compatibility."""
+    conv = Conversation(endusers=["user-1", "user-2"], companyId="test")
+
+    assert conv.endusers == ["user-1", "user-2"]
+
+
 # CRUD Tests for Conversations Resource
 
 

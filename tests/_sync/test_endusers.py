@@ -211,6 +211,62 @@ def test_enduser_field_population_by_name():
     assert enduser2.other_emails == ["other2@example.com"]
 
 
+def test_beat_trend_int_to_string():
+    """Test beatTrend accepts int and converts to string."""
+    enduser = EndUser(beatTrend=0, companyId="test-company")
+
+    assert enduser.beat_trend == "0"
+
+
+def test_beat_trend_proper_string():
+    """Test beatTrend accepts proper string unchanged."""
+    enduser = EndUser(beatTrend="up", companyId="test-company")
+
+    assert enduser.beat_trend == "up"
+
+
+def test_experience_int_to_string():
+    """Test experience accepts int and converts to string."""
+    enduser = EndUser(experience=17, companyId="test-company")
+
+    assert enduser.experience == "17"
+
+
+def test_experience_proper_string():
+    """Test experience accepts proper string unchanged."""
+    enduser = EndUser(experience="positive", companyId="test-company")
+
+    assert enduser.experience == "positive"
+
+
+def test_boolean_empty_string_to_none():
+    """Test boolean fields handle empty string."""
+    enduser = EndUser(featured="", primary="", companyId="test-company")
+
+    assert enduser.featured is None
+    assert enduser.primary is None
+
+
+def test_boolean_truthy_values():
+    """Test boolean fields handle various truthy representations."""
+    enduser1 = EndUser(featured=1, primary="true", companyId="test")
+
+    assert enduser1.featured is True
+    assert enduser1.primary is True
+
+    enduser2 = EndUser(featured=0, primary="false", companyId="test")
+
+    assert enduser2.featured is False
+    assert enduser2.primary is False
+
+
+def test_last_activities_scalar_to_list():
+    """Test lastActivities accepts scalar and converts to list."""
+    enduser = EndUser(lastActivities={"type": "email"}, companyId="test")
+
+    assert enduser.last_activities == [{"type": "email"}]
+
+
 # CRUD Tests for EndUsers Resource
 
 
