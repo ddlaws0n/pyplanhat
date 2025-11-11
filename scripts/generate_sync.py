@@ -1,10 +1,15 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+#
+# /// script
+# requires-python = ">=3.12"
+# dependencies = ["unasync"]
+# ///
 """Generate synchronous code from async source using unasync."""
 
 import sys
 from pathlib import Path
 
-import unasync
+import unasync  # type: ignore[import-untyped]
 
 
 def collect_python_files(directory: Path) -> list[str]:
@@ -42,6 +47,7 @@ def main() -> None:
         "AsyncPyPlanhat": "PyPlanhat",
         "AsyncClient": "Client",
         "@pytest.mark.asyncio": "",
+        "pytest_asyncio": "pytest",  # Transform fixture imports for sync tests
         "__aenter__": "__enter__",
         "__aexit__": "__exit__",
         "aclose": "close",

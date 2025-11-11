@@ -4,7 +4,7 @@ import os
 
 import httpx
 
-from pyplanhat._async.resources import Companies
+from pyplanhat._async.resources import Companies, Conversations, EndUsers
 
 
 class AsyncPyPlanhat:
@@ -33,6 +33,8 @@ class AsyncPyPlanhat:
 
         # Initialize resources
         self.companies = Companies(self._client)
+        self.endusers = EndUsers(self._client)
+        self.conversations = Conversations(self._client)
 
     async def __aenter__(self) -> "AsyncPyPlanhat":
         return self

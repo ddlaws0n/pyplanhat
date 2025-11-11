@@ -25,7 +25,7 @@
     name = "pyplanhat"
     readme = "README.md"
     requires-python = ">=3.10"
-    version = "0.1.0"
+    version = "0.2.0"
 
     [project.urls]
         "Homepage" = "https://github.com/ddlaws0n/pyplanhat"
@@ -82,9 +82,13 @@
         ]
 [tool.mypy]
     disallow_untyped_defs  = true
-    exclude                = [".venv/", "dist/", "tests/"]
+    exclude                = [".venv/", "dist/", "tests/", "scripts/"]
     ignore_missing_imports = true
     python_version         = "3.10"
+
+[tool.pyright]
+    exclude = [".venv", "dist", "scripts"]
+    reportMissingTypeStubs = false
 
 [tool.pytest.ini_options]
     addopts = "-q"
