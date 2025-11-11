@@ -82,9 +82,13 @@
         ]
 [tool.mypy]
     disallow_untyped_defs  = true
-    exclude                = [".venv/", "dist/", "tests/"]
+    exclude                = [".venv/", "dist/", "tests/", "scripts/"]
     ignore_missing_imports = true
     python_version         = "3.10"
+
+[tool.pyright]
+    exclude = [".venv", "dist", "scripts"]
+    reportMissingTypeStubs = false
 
 [tool.pytest.ini_options]
     addopts = "-q"
