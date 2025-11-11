@@ -12,7 +12,7 @@ from pyplanhat._exceptions import (
     ServerError,
 )
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
 
 __all__ = [
     "APIConnectionError",
@@ -40,5 +40,5 @@ except ImportError:
 
 def main() -> None:
     """Entry point for CLI."""
-    print("PyPlanhat SDK v0.1.0")
+    print("PyPlanhat SDK v0.2.0")
     print("Documentation: https://github.com/ddlaws0n/pyplanhat")

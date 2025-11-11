@@ -602,6 +602,189 @@ async with AsyncPyPlanhat() as client:
         print(f"  Primary Contact: {primary_contact.email}")
 ```
 
+## Model Extensibility
+
+PyPlanhat models are fully extensible, allowing you to add custom typed fields while maintaining type safety and IDE autocomplete support.
+
+### Pattern 1: Subclassing with Additional Typed Fields
+
+The recommended approach for adding custom business logic fields:
+
+```python
+from pyplanhat import Company
+
+class CustomCompany(Company):
+    """Extended company model with custom business fields."""
+    industry: str | None = None
+    employee_count: int | None = None
+    deal_stage: str | None = None
+    account_tier: str = "standard"  # With default value
+
+# Use your custom model
+company = CustomCompany(
+    name="Acme Corp",
+    status="customer",
+    mrr=5000.0,
+    # Your custom fields with full type safety
+    industry="Technology",
+    employee_count=500,
+    deal_stage="closed-won",
+    account_tier="enterprise"
+)
+
+# All base functionality works
+print(f"Company: {company.name}")
+print(f"Industry: {company.industry}")  # Full IDE autocomplete!
+print(f"Employees: {company.employee_count}")
+
+# Serialization includes custom fields
+data = company.model_dump(exclude_none=True)
+```
+
+### Pattern 2: Using Planhat's Custom Object
+
+For dynamic fields that map to Planhat's custom field system:
+
+```python
+from pyplanhat import Company
+
+company = Company(
+    name="Beta Inc",
+    status="prospect",
+    custom={
+        "industry": "Healthcare",
+        "employee_count": 1000,
+        "account_tier": "platinum",
+        "sales_region": "US-West"
+    }
+)
+
+# Access custom fields
+industry = company.custom.get("industry")
+tier = company.custom.get("account_tier")
+
+# Update custom fields
+company.custom["last_review_date"] = "2024-01-15"
+```
+
+### Pattern 3: Hybrid Approach (Recommended for Complex Use Cases)
+
+Combine typed fields for core custom data with flexible custom object:
+
+```python
+from pyplanhat import Company, EndUser
+
+class EnterpriseCompany(Company):
+    """Enterprise company with typed fields + flexible custom."""
+    # Strongly typed fields for critical data
+    account_tier: str = "enterprise"
+    csm_assigned: str | None = None
+    renewal_date: str | None = None
+
+    # Custom dict remains for dynamic Planhat custom fields
+    # (inherited from base Company model)
+
+company = EnterpriseCompany(
+    name="Gamma LLC",
+    account_tier="platinum",
+    csm_assigned="john.doe@company.com",
+    renewal_date="2024-12-31",
+    # Plus dynamic custom fields
+    custom={
+        "preferred_contact_method": "email",
+        "timezone": "America/Los_Angeles"
+    }
+)
+```
+
+### Extending All Models
+
+The same pattern works for all PyPlanhat models:
+
+```python
+from pyplanhat import EndUser, Conversation
+
+class TrackedEndUser(EndUser):
+    """EndUser with engagement tracking."""
+    lifecycle_stage: str | None = None  # "lead", "customer", "champion"
+    engagement_score: int | None = None
+    last_training_date: str | None = None
+
+class CategorizedConversation(Conversation):
+    """Conversation with additional categorization."""
+    sentiment: str | None = None  # "positive", "neutral", "negative"
+    action_items: list[str] = []
+    follow_up_date: str | None = None
+
+# Use them
+user = TrackedEndUser(
+    company_id="comp-123",
+    email="john@example.com",
+    lifecycle_stage="champion",
+    engagement_score=95
+)
+
+conv = CategorizedConversation(
+    company_id="comp-123",
+    type="call",
+    subject="Q4 Review",
+    sentiment="positive",
+    action_items=["Send proposal", "Schedule follow-up"],
+    follow_up_date="2024-02-01"
+)
+```
+
+### Type Safety Benefits
+
+When you subclass models, you get:
+
+1. **IDE Autocomplete**: Your custom fields show up in IDE suggestions
+2. **Type Checking**: mypy and other type checkers validate your code
+3. **Runtime Validation**: Pydantic validates field types at runtime
+4. **Documentation**: Your custom fields are self-documenting
+
+```python
+class Company(Company):
+    industry: str | None = None
+    employee_count: int | None = None
+
+# ✓ Type-safe - IDE knows this is valid
+company.employee_count = 500
+
+# ✗ Type error - caught by mypy and at runtime
+company.employee_count = "five hundred"  # Error: expected int, got str
+```
+
+### Best Practices for Model Extension
+
+1. **Use subclassing for stable, typed fields** that are core to your business logic
+2. **Use the custom object** for dynamic fields that map directly to Planhat's custom fields
+3. **Name your models descriptively** to indicate their purpose
+4. **Add docstrings** to document what your custom fields represent
+5. **Use Optional types** (`str | None`) for nullable fields
+6. **Provide defaults** for fields that should always have a value
+
+```python
+class SaaSCompany(Company):
+    """Company model for SaaS businesses.
+
+    Extends base Company with SaaS-specific metrics and tracking.
+    """
+    # Product usage
+    monthly_active_users: int | None = None
+    daily_active_users: int | None = None
+    feature_adoption_rate: float | None = None
+
+    # Business metrics
+    customer_acquisition_cost: float | None = None
+    lifetime_value: float | None = None
+    churn_risk: str = "low"  # Default value
+
+    # Relationship management
+    executive_sponsor: str | None = None
+    success_plan_url: str | None = None
+```
+
 ## Support
 
 For issues, questions, or contributions, please visit:

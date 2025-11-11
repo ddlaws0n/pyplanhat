@@ -8,8 +8,9 @@ Modern async-first Python SDK for the Planhat API.
 - 📦 **Built with modern Python tooling** (httpx, pydantic, uv)
 - 🔒 **Type-safe** with full mypy support
 - ✨ **Comprehensive error handling** with custom exception hierarchy
-- 🧪 **Extensively tested** with 90%+ coverage
+- 🧪 **Extensively tested** with 97% coverage
 - 📚 **Complete resource coverage** - Companies, EndUsers, Conversations
+- 🎨 **Fully extensible models** - Subclass and add your own typed fields
 
 ## Installation
 
