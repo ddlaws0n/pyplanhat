@@ -7,6 +7,83 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] - 2025-11-11
+
+### Added
+
+#### Resources
+- **EndUsers** resource with full CRUD operations:
+  - `list(company_id)` - Retrieve all end users with optional company filtering
+  - `get(id)` - Fetch single end user by ID
+  - `create(enduser)` - Create new end user
+  - `update(id, enduser)` - Update existing end user
+  - `delete(id)` - Delete end user by ID
+- **Conversations** resource with full CRUD operations:
+  - `list(company_id)` - Retrieve all conversations with optional company filtering
+  - `get(id)` - Fetch single conversation by ID
+  - `create(conversation)` - Create new conversation
+  - `update(id, conversation)` - Update existing conversation
+  - `delete(id)` - Delete conversation by ID
+- Pydantic-based `EndUser` model with comprehensive field mapping:
+  - Core identity fields (email, name, position, phone)
+  - Activity tracking (beats, conversations, last active)
+  - NPS data (score, comments, dates)
+  - Relationship management (tags, related users)
+  - Custom fields support
+- Pydantic-based `Conversation` model with comprehensive field mapping:
+  - Core content fields (subject, description, snippet)
+  - Participant management (users, endusers)
+  - Status flags (starred, pinned, archived)
+  - Categorization (tags, activity tags)
+  - Custom fields support
+
+#### Documentation
+- **USAGE.md** - Comprehensive 796-line usage guide with examples:
+  - Quick start guides for async and sync usage
+  - Detailed examples for all three resources (Companies, EndUsers, Conversations)
+  - Error handling patterns and best practices
+  - Advanced examples (bulk operations, relationship management)
+  - Model extensibility patterns (subclassing, custom fields, hybrid approach)
+- Updated README.md with:
+  - Current feature list and resources overview
+  - Enhanced quick start with practical examples
+  - Updated roadmap showing Phases 0, 1, 2 complete
+
+#### Model Extensibility
+- Full support for model subclassing with custom typed fields
+- Three documented extensibility patterns:
+  1. Subclassing with additional typed fields (recommended)
+  2. Using Planhat's custom object for dynamic fields
+  3. Hybrid approach combining both patterns
+- Type-safe custom fields with IDE autocomplete support
+- Runtime validation via Pydantic for custom fields
+
+#### Public API
+- Models now exported from main `__init__.py` for convenient imports:
+  - `from pyplanhat import Company, EndUser, Conversation`
+- All resources wired to both AsyncPyPlanhat and PyPlanhat clients
+
+### Fixed
+- Sync test fixtures now correctly use `@pytest.fixture` instead of `@pytest_asyncio.fixture`
+- USAGE.md examples properly handle None list fields before appending
+- Model docstrings clarified to distinguish API requirements from Pydantic validation
+
+### Changed
+- Test coverage increased from 90% to 97%
+- Test suite expanded from 52 to 132 tests (66 async + 66 sync)
+- Version bumped to 0.2.0 across all configuration files
+
+### Quality Assurance
+- ✅ 132 tests passing (100% pass rate)
+- ✅ 97% code coverage maintained
+- ✅ Zero linting issues (ruff)
+- ✅ Zero type errors (mypy)
+- ✅ CI passing on Python 3.10, 3.11, 3.12, 3.13
+
+---
+
+*Note: Version 0.2.0 completes the v1.0 resource scope with all planned resources (Companies, EndUsers, Conversations) fully implemented, tested, and documented.*
+
 ## [0.1.0] - 2025-11-10
 
 ### Added

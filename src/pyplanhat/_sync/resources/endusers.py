@@ -12,10 +12,11 @@ class EndUser(BaseModel):
     """EndUser resource from Planhat API.
 
     Represents an end user with all documented fields from the Planhat API schema.
-    Required: companyId + (email OR externalId OR sourceId)
+    Note: The Planhat API requires companyId + (email OR externalId OR sourceId),
+    but these fields are optional at the model level for flexibility.
     """
 
-    # Required field
+    # Required by Planhat API
     company_id: str | None = Field(
         default=None,
         validation_alias=AliasChoices("companyId", "company_id"),

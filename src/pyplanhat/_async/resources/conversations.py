@@ -12,10 +12,11 @@ class Conversation(BaseModel):
     """Conversation resource from Planhat API.
 
     Represents a conversation/activity with all documented fields from the Planhat API schema.
-    Only the `companyId` field is required; all other fields are optional.
+    Note: The Planhat API requires companyId, but this field is optional at the model
+    level for flexibility.
     """
 
-    # Required field
+    # Required by Planhat API
     company_id: str | None = Field(
         default=None,
         validation_alias=AliasChoices("companyId", "company_id"),

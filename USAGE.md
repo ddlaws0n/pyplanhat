@@ -223,6 +223,8 @@ async with AsyncPyPlanhat(api_key="your-api-key") as client:
 
     # Update fields
     user.position = "VP of Engineering"
+    if user.tags is None:
+        user.tags = []
     user.tags.append("influencer")
     user.custom["last_contact"] = "2024-01-15"
 
@@ -307,6 +309,8 @@ async with AsyncPyPlanhat(api_key="your-api-key") as client:
 
     # Update fields
     conversation.starred = True
+    if conversation.tags is None:
+        conversation.tags = []
     conversation.tags.append("follow-up-needed")
     conversation.custom["follow_up_date"] = "2024-02-01"
 

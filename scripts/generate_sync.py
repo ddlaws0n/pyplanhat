@@ -42,6 +42,7 @@ def main() -> None:
         "AsyncPyPlanhat": "PyPlanhat",
         "AsyncClient": "Client",
         "@pytest.mark.asyncio": "",
+        "pytest_asyncio": "pytest",  # Transform fixture imports for sync tests
         "__aenter__": "__enter__",
         "__aexit__": "__exit__",
         "aclose": "close",
